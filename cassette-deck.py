@@ -5,11 +5,16 @@ import pygame
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
+scale = 64
+screen = pygame.display.set_mode((scale * 16, scale * 5))
 
-GAME_FONT = pygame.freetype.Font("Base-Font/NerkoOne-Regular.ttf", 24)
+
+fontsize = scale
+
+GAME_FONT = pygame.freetype.Font("Base-Font/NerkoOne-Regular.ttf", fontsize)
+fontsize += (fontsize//4)
 
 while running:
     # poll for events
@@ -19,7 +24,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("green")
+    screen.fill((255,0,255,0))
 
     # RENDER YOUR GAME HERE
     a = subprocess.run(['vlc-ctrl',  'info'], stdout=subprocess.PIPE)
@@ -47,10 +52,10 @@ while running:
         genre = str(x[5])
         x = 0
         y = 0
-        GAME_FONT.render_to(screen, (x, 0+y), str(album), (0, 0, 0))
-        GAME_FONT.render_to(screen, (x, 30+y), str(title), (0, 0, 0))
-        GAME_FONT.render_to(screen, (x, 60+y), str(artist), (0, 0, 0))
-        GAME_FONT.render_to(screen, (x, 90+y), str(genre), (0, 0, 0))
+        GAME_FONT.render_to(screen, (x, (fontsize*0)+y), str(album), (0, 0, 0))
+        GAME_FONT.render_to(screen, (x, (fontsize*1)+y), str(title), (0, 0, 0))
+        GAME_FONT.render_to(screen, (x, (fontsize*2)+y), str(artist), (0, 0, 0))
+        GAME_FONT.render_to(screen, (x, (fontsize*3)+y), str(genre), (0, 0, 0))
 
 
     # flip() the display to put your work on screen
