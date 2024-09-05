@@ -1,0 +1,3 @@
+# Ignore vs workspace files #
+#############################
+*.code-workspace

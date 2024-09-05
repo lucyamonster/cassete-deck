@@ -13,18 +13,30 @@ tick = 0
 x = 0
 y = 0
 
-x_text = x
-y_text = y
+#Text offset
+x_text = x + 0
+y_text = y + 0
 
+# Cassette offset
 x_cas = x + 10
 y_cas = y - 20
 
+#updaterate/speed
 clockrate = 20
 scale = 64
 fontsize = scale
 
+# Limit the maximum angle in degres
 cas_rotaition_limit = 25
 
+# set true/false to toggle album title artist genre
+text_boxes = [True,True,True,True]
+
+# Move value to position to display
+# Example 3 to the first one to disply genre first<
+layout = [0,1,2,3]
+
+# Activate text only (true)
 just_text_mode = False
 
 if just_text_mode:
@@ -44,16 +56,15 @@ def slice_and_print():
     splitdata = str(metadata).split("\\n")
 
     # Prep and assign lines
-    album = str(str(splitdata[0])[2:])
-    title = str(splitdata[1])
-    artist = str(splitdata[2])
-    genre = str(splitdata[5])
+    data_to_text = [str(str(splitdata[0])[2:]),str(splitdata[1]),str(splitdata[2]),str(splitdata[5])]
 
-    # Print to window
-    GAME_FONT.render_to(screen, (x_text, (fontsize*0)+y_text), str(album), (0, 0, 0))
-    GAME_FONT.render_to(screen, (x_text, (fontsize*1)+y_text), str(title), (0, 0, 0))
-    GAME_FONT.render_to(screen, (x_text, (fontsize*2)+y_text), str(artist), (0, 0, 0))
-    GAME_FONT.render_to(screen, (x_text, (fontsize*3)+y_text), str(genre), (0, 0, 0))
+    line = 0
+
+    # Print text to window
+    while line < 4:
+        if text_boxes[line]:
+            GAME_FONT.render_to(screen, (x_text, (fontsize*line)+y_text), str(data_to_text[layout[line]]), (0, 0, 0))
+            line +=1
 
 
 while running:
@@ -62,22 +73,24 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
     tick += 1
-    print(tick )
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((255,0,255,0))
 
-    # RENDER YOUR GAME HERE
+    # grab data from vlc
     a = subprocess.run(['vlc-ctrl',  'info'], stdout=subprocess.PIPE)
     metadata = a.stdout
 
+
+    # Check for vlc metadata
     if str(metadata) == "b''":
-        GAME_FONT.render_to(screen, (100, 100), "No vlc out found :(", (0, 0, 0))
+        GAME_FONT.render_to(screen, (100, 100), "No vlc data found :(", (0, 0, 0))
     else:
+        slice_and_print()
         animated_cassette = pygame.transform.rotozoom(cassette_img, (tick % cas_rotaition_limit) - (cas_rotaition_limit // 2), scale//17)
         screen.blit(animated_cassette, (x_cas, y_cas))
-        slice_and_print()
 
     # flip() the display to put your work on screen
     pygame.display.flip()
@@ -86,6 +99,6 @@ while running:
         screen = pygame.display.set_mode((scale * 16, scale * 5))
         updatedisplaysize = False
 
-    clock.tick(clockrate)  # limits FPS to 60
+    clock.tick(clockrate)  # limits FPS to clockrate
 
 pygame.quit()
