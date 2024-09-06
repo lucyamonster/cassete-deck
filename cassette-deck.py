@@ -15,7 +15,7 @@ y = 0
 
 #Text offset
 x_text = x + 0
-y_text = y + 0
+y_text = y - 64
 
 # Cassette offset
 x_cas = x + 10
@@ -39,11 +39,14 @@ layout = [0,1,2,3]
 # Don't print album if it's the same as the title, ussuallymeaning it's a single
 ignore_album_if_single = True
 
+# Just ignores genre if empty
+ignore_genre_if_empty = True
+
 # Activate text only (true)
-just_text_mode = False
+just_text_mode = True
 
 if just_text_mode:
-    screen = pygame.display.set_mode((scale * 16, scale * 5))
+    screen = pygame.display.set_mode((scale * 16, scale * 4))
 else:
     screen = pygame.display.set_mode(((scale * 16)*1, (scale * 5)*1.8))
     y_text += 128 * (scale//31)
@@ -54,6 +57,11 @@ fontsize += (fontsize//4)
 
 updatedisplaysize = False
 is_single = False
+
+
+def animation():
+    animated_cassette = pygame.transform.rotozoom(cassette_img, (tick % cas_rotaition_limit) - (cas_rotaition_limit // 2), scale//17)
+    screen.blit(animated_cassette, (x_cas, y_cas))
 
 def slice_and_print():
     # Split by line
@@ -82,12 +90,19 @@ def slice_and_print():
             b = layout[line] != 0
         else:
             b = True
+        
+        # Test if genre is empty
+        c = True
+        if layout[line] == 3:
+            if str(data_to_text[layout[line]]) == "genre     : ":
+                c = False
+            else:
+                c = True
 
         # Print text to screen
-        if a and b:
+        if a and b and c:
             GAME_FONT.render_to(screen, (x_text, (fontsize*line)+y_text), str(data_to_text[layout[line]]), (0, 0, 0))
         line +=1
-
 
 while running:
     # poll for events
@@ -111,8 +126,9 @@ while running:
         GAME_FONT.render_to(screen, (100, 100), "No vlc data found :(", (0, 0, 0))
     else:
         slice_and_print()
-        animated_cassette = pygame.transform.rotozoom(cassette_img, (tick % cas_rotaition_limit) - (cas_rotaition_limit // 2), scale//17)
-        screen.blit(animated_cassette, (x_cas, y_cas))
+        if not just_text_mode:
+            animation()
+
 
     # flip() the display to put your work on screen
     pygame.display.flip()
