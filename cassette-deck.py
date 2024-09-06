@@ -36,6 +36,9 @@ text_boxes = [True,True,True,True]
 # Example 3 to the first one to disply genre first<
 layout = [0,1,2,3]
 
+# Don't print album if it's the same as the title, ussuallymeaning it's a single
+ignore_album_if_single = True
+
 # Activate text only (true)
 just_text_mode = False
 
@@ -50,6 +53,7 @@ cassette_img = pygame.image.load("Icons/Cassette 128x128.png")
 fontsize += (fontsize//4)
 
 updatedisplaysize = False
+is_single = False
 
 def slice_and_print():
     # Split by line
@@ -58,13 +62,31 @@ def slice_and_print():
     # Prep and assign lines
     data_to_text = [str(str(splitdata[0])[2:]),str(splitdata[1]),str(splitdata[2]),str(splitdata[5])]
 
+
+    # Check if single
+    if ignore_album_if_single:
+        a = data_to_text[0][12:]
+        b = data_to_text[1][12:]
+        if a == b:
+            is_single = True
+        else:
+            is_single = False
+
     line = 0
 
     # Print text to window
     while line < 4:
-        if text_boxes[line]:
+        a = text_boxes[line]
+        # Check ignore album stuff
+        if ignore_album_if_single:
+            b = layout[line] != 0
+        else:
+            b = True
+
+        # Print text to screen
+        if a and b:
             GAME_FONT.render_to(screen, (x_text, (fontsize*line)+y_text), str(data_to_text[layout[line]]), (0, 0, 0))
-            line +=1
+        line +=1
 
 
 while running:
